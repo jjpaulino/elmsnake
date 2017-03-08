@@ -70,6 +70,29 @@ init =
 
 -- update
 
+type Msg
+    = ArrowPressed Keys
+    | SizeUpdated Window.Size
+    | Tick Time
+    | MaybeSpawnApple AppleSpawn
+
+update : Msg -> Game -> ( Game, Cmd Msg )
+update msg game =
+    case msg of
+        ArrowPressed arrow ->
+            ( updateDirection arrow game, Cmd.none )
+
+        SizeUpdated dimensions ->
+            ( { game | dimensions = dimensions }, Cmd.none )
+
+        Tick time ->
+            updateGame game
+
+        MaybeSpawnApple spawn ->
+            if spawn.chance == 0 then
+                ( spanwApple game spawn, Cmd.none )
+            else
+                ( game, Cmd.none )
 
 
 
