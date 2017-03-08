@@ -93,8 +93,60 @@ update msg game =
                 ( spanwApple game spawn, Cmd.none )
             else
                 ( game, Cmd.none )
+                    |> checkIfOutOfBounds
+                    |> checkIfEatenSelf
+                    |> checkIfAteApple
+                    |> updateSnake
+                    |> updateApple
+
+ checkIfEatenSelf : ( Game, Cmd Msg ) -> ( Game, Cmd Msg)
+ checkIfEatenSelf ( game, cmd) =
+   let
+          head =
+              snakeHead game.snake
+
+          tail =
+              List.drop 1 game.snake
+
+          isDead =
+              game.isDead || List.any ( samePosition head ) tail
+
+    in
+      ( { game | isDead = isDead }, cmd )
+
+checkifAteApple : ( Game, Cmd Msg ) -> ( Game, Cmd Msg )
+checkIfAteApple ( game, cmd ) =
+    let
+        head =
+            snakeHead game.snake
+
+    in
+        case game.apple of
+            Nothing ->
+                ( { game | ateApple = False }, cmd )
+            Just apple ->
+                ( { game | ateApple = samePosition head apple }, cmd )
+
+samePosition : Block -> Block -> Bool
+samePosition a b =
+    a.x == b.x && a.y == b.y
 
 
+checkIfOutOfBounds : ( Game, Cmd Msg ) -> ( Game, Cmd Msg )
+checkIfOutOfBounds =
+  let
+      head =
+            snakehead game.snake
+      isDead =
+            ( head.x == 0 && game.direction === Left )
+            || ( head.y == 0 && game.direction == Up )
+            || ( head.x == 49 && game.direction == Right )
+            || ( head.y == 49 && game.direction == Down )
+
+snakeHead : Snake -> Block
+snakeHead snake =
+    List.head snake
+        |> Maybe.withDefault { x = 0, y = 0 }
 
 -- subscriptions
 -- view
